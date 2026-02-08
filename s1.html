@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SolarQuote SA – Beat Load Shedding with Solar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'sa-green': '#1a5c38',
+            'sa-yellow': '#facc15',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeInUp { animation: fadeInUp 0.8s ease-out forwards; }
+    @keyframes countUp { to { --num: var(--target); } }
+    .count-up { animation: countUp 2s ease-out forwards; counter-reset: num var(--start, 0); }
+    .count-up::after { content: counter(num); }
+    .progress-bar { transition: width 2s ease-out; }
+  </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen font-sans antialiased">
+
+  <!-- Header / Hero -->
+  <header class="bg-gradient-to-br from-sa-green to-green-800 text-white py-16 px-6 text-center">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">Beat Load Shedding with Solar Power</h1>
+    <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">Design your perfect solar setup in seconds. Select your appliances, get an instant animated quote, and share via WhatsApp!</p>
+    <button onclick="document.getElementById('calculator').scrollIntoView({behavior:'smooth'})" class="bg-sa-yellow text-gray-900 font-bold px-8 py-4 rounded-full text-lg hover:bg-yellow-400 transition transform hover:scale-105">
+      Start Your Quote →
+    </button>
+  </header>
+
+  <main id="calculator" class="max-w-6xl mx-auto px-6 py-12">
+
+    <!-- Dark Mode Toggle -->
+    <div class="flex justify-end mb-6">
+      <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+      </button>
+    </div>
+
+    <!-- Device Selection -->
+    <section class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-12">
+      <h2 class="text-3xl font-bold mb-6 text-center">Select Your Appliances</h2>
+      <p class="text-center text-gray-600 dark:text-gray-300 mb-8">Choose what you want to keep running during load shedding. Adjust quantities and daily hours below.</p>
+
+      <div id="devices" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+      <!-- Add Custom -->
+      <div class="mt-8 text-center">
+        <button id="addCustom" class="text-sa-green hover:underline font-medium">+ Add Custom Device</button>
+      </div>
+
+      <!-- Usage Hours -->
+      <div class="mt-10">
+        <label class="block text-xl font-semibold mb-3">Average Daily Usage Hours per Appliance</label>
+        <input type="range" id="hours" min="1" max="24" value="8" class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+        <div class="text-center mt-2 text-2xl font-bold"><span id="hoursValue">8</span> hours / day</div>
+      </div>
+
+      <button id="calculateBtn" class="mt-10 w-full bg-sa-green text-white font-bold text-xl py-5 rounded-xl hover:bg-green-700 transition transform hover:scale-102">
+        Calculate My Solar Needs →
+      </button>
+    </section>
+
+    <!-- Quote Result (hidden initially) -->
+    <section id="quoteSection" class="hidden bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 rounded-2xl shadow-2xl p-8 lg:p-12">
+
+      <h2 class="text-4xl font-bold text-center mb-10 text-sa-green dark:text-sa-yellow">Your Solar Quote</h2>
+
+      <div class="grid md:grid-cols-3 gap-8 mb-12">
+        <div class="text-center animate-fadeInUp" style="animation-delay: 0.2s;">
+          <svg class="w-20 h-20 mx-auto mb-4 text-sa-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+          <h3 class="text-2xl font-bold mb-2">Solar Panels</h3>
+          <p class="text-5xl font-extrabold count-up" data-target="0" id="panelsCount">0</p>
+          <p class="text-lg">400W panels (approx.)</p>
+        </div>
+
+        <div class="text-center animate-fadeInUp" style="animation-delay: 0.5s;">
+          <svg class="w-20 h-20 mx-auto mb-4 text-sa-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <h3 class="text-2xl font-bold mb-2">Inverter Size</h3>
+          <p class="text-5xl font-extrabold count-up" data-target="0" id="inverterCount">0</p>
+          <p class="text-lg">kW (for peak load)</p>
+        </div>
+
+        <div class="text-center animate-fadeInUp" style="animation-delay: 0.8s;">
+          <svg class="w-20 h-20 mx-auto mb-4 text-sa-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3v18M19 3v18M3 9h18M3 15h18"/></svg>
+          <h3 class="text-2xl font-bold mb-2">Battery Storage</h3>
+          <p class="text-5xl font-extrabold count-up" data-target="0" id="batteryCount">0</p>
+          <p class="text-lg">5kWh units</p>
+        </div>
+      </div>
+
+      <div class="bg-gray-100 dark:bg-gray-700 p-6 rounded-xl mb-10">
+        <h3 class="text-2xl font-bold mb-4">Estimated Costs (Rough Guide)</h3>
+        <div class="space-y-3 text-lg">
+          <p>Panels: <span id="panelsCost">R0</span></p>
+          <p>Inverter: <span id="inverterCost">R0</span></p>
+          <p>Batteries: <span id="batteryCost">R0</span></p>
+          <p class="text-xl font-bold pt-4 border-t">Total Estimate: <span id="totalCost" class="text-sa-green dark:text-sa-yellow">R0</span></p>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-6">*Estimates only. Actual costs vary. Contact us for accurate quote. Prices incl. basic installation.</p>
+      </div>
+
+      <div class="text-center">
+        <button id="shareWhatsApp" class="bg-green-500 hover:bg-green-600 text-white font-bold px-10 py-5 rounded-full text-xl transition transform hover:scale-105">
+          Send Quote to WhatsApp
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-sa-green text-white py-8 text-center mt-16">
+    <p>© 2026 SolarQuote SA • Helping South Africa go solar • Contact: +27 123 456 789</p>
+    <p class="text-sm mt-2">This is a simulation tool. Professional assessment recommended.</p>
+  </footer>
+
+  <script>
+    // Theme toggle
+    const toggle = document.getElementById('themeToggle');
+    toggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+
+    // Predefined devices with avg running watts (sources: Eskom-like estimates, adjusted for SA common appliances)
+    const deviceList = [
+      {name: "LED Lights (per bulb)", watts: 10},
+      {name: "Fridge / Freezer", watts: 150},
+      {name: "TV (LED)", watts: 80},
+      {name: "Laptop / Charger", watts: 65},
+      {name: "Ceiling Fan", watts: 75},
+      {name: "Microwave", watts: 1000},
+      {name: "Kettle", watts: 1800},
+      {name: "Washing Machine", watts: 500},
+      {name: "Air Conditioner (small)", watts: 1200},
+      {name: "Router / WiFi", watts: 15},
+      {name: "Phone Chargers (multiple)", watts: 20},
+      {name: "Geyser (element – careful!)", watts: 2000},
+      {name: "Electric Stove (small plate)", watts: 1500}
+    ];
+
+    const devicesContainer = document.getElementById('devices');
+
+    deviceList.forEach(dev => {
+      const card = document.createElement('div');
+      card.className = 'bg-gray-100 dark:bg-gray-700 p-5 rounded-xl shadow hover:shadow-lg transition';
+      card.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">⚡</span>
+            <span class="font-medium">${dev.name}</span>
+          </div>
+          <input type="checkbox" class="device-check w-5 h-5" data-watts="${dev.watts}">
+        </div>
+        <div class="mt-3 flex items-center space-x-3">
+          <label class="text-sm">Quantity:</label>
+          <input type="number" class="device-qty w-16 p-1 border rounded dark:bg-gray-600" value="1" min="1">
+        </div>
+      `;
+      devicesContainer.appendChild(card);
+    });
+
+    // Add custom device
+    document.getElementById('addCustom').addEventListener('click', () => {
+      const name = prompt("Enter device name:");
+      if (!name) return;
+      const watts = parseInt(prompt("Enter average power (watts):"), 10);
+      if (isNaN(watts) || watts < 1) return alert("Please enter valid watts");
+
+      const card = document.createElement('div');
+      card.className = 'bg-gray-100 dark:bg-gray-700 p-5 rounded-xl shadow hover:shadow-lg transition relative';
+      card.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">⚡</span>
+            <span class="font-medium">${name} (custom)</span>
+          </div>
+          <input type="checkbox" class="device-check w-5 h-5" data-watts="${watts}" checked>
+        </div>
+        <div class="mt-3 flex items-center space-x-3">
+          <label class="text-sm">Quantity:</label>
+          <input type="number" class="device-qty w-16 p-1 border rounded dark:bg-gray-600" value="1" min="1">
+        </div>
+        <button class="absolute top-2 right-2 text-red-500 text-xs" onclick="this.parentElement.remove()">×</button>
+      `;
+      devicesContainer.appendChild(card);
+    });
+
+    // Hours slider
+    const hoursSlider = document.getElementById('hours');
+    const hoursValue = document.getElementById('hoursValue');
+    hoursSlider.addEventListener('input', () => {
+      hoursValue.textContent = hoursSlider.value;
+    });
+
+    // Calculate
+    document.getElementById('calculateBtn').addEventListener('click', () => {
+      let totalDailyWh = 0;
+      let peakW = 0;
+
+      document.querySelectorAll('.device-check:checked').forEach(check => {
+        const qty = parseInt(check.closest('div').querySelector('.device-qty').value) || 1;
+        const watts = parseInt(check.dataset.watts);
+        totalDailyWh += watts * qty * parseInt(hoursSlider.value);
+        peakW += watts * qty; // simplistic peak: all on at once
+      });
+
+      if (totalDailyWh === 0) {
+        alert("Please select at least one appliance!");
+        return;
+      }
+
+      const dailyKWh = totalDailyWh / 1000;
+      const sunHours = 5; // SA average peak sun hours
+      const efficiency = 0.8; // system losses
+
+      // Panels: 400W each
+      const panelsNeeded = Math.ceil((dailyKWh / sunHours) / (400 / 1000) / efficiency);
+
+      // Inverter: round up to nearest 0.5kW
+      const inverterKw = Math.ceil(peakW / 1000 * 1.2 / 0.5) * 0.5; // 20% headroom
+
+      // Batteries: assume 5kWh usable (50% DoD lithium)
+      const batteryUnits = Math.ceil(dailyKWh / 5);
+
+      // Rough costs (2026 estimates)
+      const panelCostEach = 2500;
+      const inverterCostPerKw = 15000;
+      const batteryCostEach = 35000;
+
+      const panelsCost = panelsNeeded * panelCostEach;
+      const inverterCost = inverterKw * inverterCostPerKw;
+      const batteryCost = batteryUnits * batteryCostEach;
+      const totalEst = panelsCost + inverterCost + batteryCost;
+
+      // Update DOM
+      document.getElementById('panelsCount').dataset.target = panelsNeeded;
+      document.getElementById('panelsCount').textContent = '0';
+      document.getElementById('inverterCount').dataset.target = inverterKw.toFixed(1);
+      document.getElementById('batteryCount').dataset.target = batteryUnits;
+
+      document.getElementById('panelsCost').textContent = `R${panelsCost.toLocaleString()}`;
+      document.getElementById('inverterCost').textContent = `R${inverterCost.toLocaleString()}`;
+      document.getElementById('batteryCost').textContent = `R${batteryCost.toLocaleString()}`;
+      document.getElementById('totalCost').textContent = `R${totalEst.toLocaleString()}`;
+
+      document.getElementById('quoteSection').classList.remove('hidden');
+      document.getElementById('quoteSection').scrollIntoView({behavior:'smooth'});
+
+      // Trigger count-up animations
+      setTimeout(() => {
+        document.querySelectorAll('.count-up').forEach(el => {
+          el.style.setProperty('--target', el.dataset.target);
+          el.classList.add('count-up-active'); // dummy to retrigger if needed
+        });
+      }, 300);
+    });
+
+    // WhatsApp share
+    document.getElementById('shareWhatsApp').addEventListener('click', () => {
+      const panels = document.getElementById('panelsCount').dataset.target;
+      const inverter = document.getElementById('inverterCount').dataset.target;
+      const batteries = document.getElementById('batteryCount').dataset.target;
+      const total = document.getElementById('totalCost').textContent;
+
+      const text = `Hi SolarQuote SA! 🌞\nMy load shedding solar quote:\n• ${panels} × 400W Panels\n• ${inverter} kW Inverter\n• ${batteries} × 5kWh Batteries\nEstimated total: ${total}\nLet's chat about installation!`;
+      const url = `https://wa.me/+27123456789?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+    });
+
+    // Simple count-up effect (CSS var + content trick not perfect, fallback to JS)
+    // For better effect you could use IntersectionObserver + requestAnimationFrame, but keeping simple
+  </script>
+</body>
+</html>
